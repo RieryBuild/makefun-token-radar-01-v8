@@ -1726,8 +1726,8 @@ export function farmMath(
   const holdDays = holdDaysFor(age, params);
   const weeks = Math.ceil(holdDays / 7);
   const hours = round2(e.setup_minutes / 60 + (e.weekly_minutes / 60) * weeks + e.claim_minutes / 60);
-  const cost = round2(e.setup_gas_usd + e.weekly_gas_usd * weeks + e.position_usd * e.tbill_annual_rate * (holdDays / 365));
-  const slice = round2(e.airdrop_share * implied * (e.position_usd / Math.max(1, p.tvl_usd)));
+  const cost = round2(e.setup_gas_usd + e.weekly_gas_usd * weeks + deposit * e.tbill_annual_rate * (holdDays / 365));
+  const slice = round2(e.airdrop_share * implied * (deposit / Math.max(1, p.tvl_usd)));
   const net = round2(slice - cost);
   const perHour = round2(net / hours);
   const farmThreshold = deposit * 0.01;
