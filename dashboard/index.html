@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch Radar — the full model, tested before it prices anything</title>
+<link rel="stylesheet" href="desk.css">
+</head>
+<body>
+<header class="mast">
+  <div class="mast-in">
+    <div>
+      <p class="kicker">DefiLlama snapshot &middot; <span id="asof">—</span> &middot; radar-8</p>
+      <h1>Launch Radar</h1>
+      <p class="lede">Every protocol that records no token, priced off the tokens that already trade — every test prices the deployed model, not the curve alone.</p>
+    </div>
+    <p class="mast-note">The price is a fitted model, not a guess — and the strip below shows what the model that actually ships scored out of sample, with the curve-alone numbers beside it so you can see what the multipliers cost and earn.</p>
+  </div>
+</header>
+
+<section class="proof" id="proof" aria-label="How the deployed model was tested">
+  <div class="proof-in">
+    <div class="proof-head">
+      <h2>The deployed model, tested before it prices anything</h2>
+      <p class="proof-formula">implied value = 10<sup>(a + b &middot; log<sub>10</sub> TVL + c &middot; (log<sub>10</sub> TVL)<sup>2</sup>)</sup> &times; growth &times; chains</p>
+    </div>
+    <dl class="kpis" id="kpis">
+      <div><dt>Traded comparables</dt><dd id="k-comps">—</dd></div>
+      <div><dt>Fitted slope</dt><dd id="k-slope">—</dd></div>
+      <div><dt>Leave-one-out miss</dt><dd id="k-loo">—</dd></div>
+      <div><dt>Blind split, 2025</dt><dd id="k-b25">—</dd></div>
+      <div><dt>Blind split, 2024</dt><dd id="k-b24">—</dd></div>
+      <div><dt>Repeated 5-fold CV</dt><dd id="k-cv">—</dd></div>
+    </dl>
+    <p class="proof-line" id="proof-scope">—</p>
+    <p class="proof-line" id="proof-odds">—</p>
+    <p class="proof-line" id="proof-dropped">—</p>
+    <p class="proof-line dim">What the model cannot price: whether or when a token launches, airdrop rules, points programs, team decisions, or tokenomics.</p>
+  </div>
+</section>
+
+<p class="audit" id="audit">—</p>
+
+<main>
+  <section class="card" id="board-card">
+    <div class="tabs" id="tabs" role="tablist">
+      <button type="button" class="tab on" data-tab="board" role="tab">No token yet <span id="tab-board-n"></span></button>
+      <button type="button" class="tab" data-tab="aside" role="tab">Set aside <span id="tab-aside-n"></span></button>
+      <button type="button" class="tab" data-tab="traded" role="tab">Token trades <span id="tab-traded-n"></span></button>
+    </div>
+
+    <div class="pane" id="pane-board">
+      <div class="board-head">
+        <h2>The board <span class="count" id="row-count"></span></h2>
+        <p class="hint">Click a row for its detail and farm plan. Verdicts net per $1,000 at the base scenario — <b class="v FARM">FARM</b> $10+, <b class="v THIN">THIN</b> $0+, <b class="v SKIP">SKIP</b> below $0.</p>
+      </div>
+      <div class="controls" id="controls">
+        <label>Search <input id="q" type="search" placeholder="Name or slug&hellip;" autocomplete="off"></label>
+        <label>Category <select id="category"><option value="all">All categories</option></select></label>
+        <label>Chain <select id="chain"><option value="all">All chains</option></select></label>
+        <label>Verdict <select id="verdict"><option value="all">All verdicts</option><option value="FARM">FARM</option><option value="THIN">THIN</option><option value="SKIP">SKIP</option></select></label>
+        <label class="check"><input id="watchonly" type="checkbox"> Watchlist only</label>
+        <label>Sort <select id="sort">
+          <option value="implied">Implied value</option>
+          <option value="net1k">Net</option>
+          <option value="perhour">Net per hour</option>
+          <option value="slice">Slice</option>
+          <option value="tvl">TVL</option>
+          <option value="growth">7-day growth</option>
+          <option value="age">Age</option>
+          <option value="odds">Launch odds</option>
+          <option value="name">Name</option>
+        </select></label>
+        <span class="whatif-label">What-if:</span>
+        <label>Deposit <select id="wi-deposit"><option value="1000">$1,000</option><option value="5000">$5,000</option><option value="25000">$25,000</option></select></label>
+        <label>Drop share <select id="wi-share"><option value="0.05">5%</option><option value="0.1" selected>10%</option><option value="0.2">20%</option></select></label>
+        <label>T-bill <select id="wi-rate"><option value="0">0%</option><option value="0.04" selected>4%</option><option value="0.08">8%</option></select></label>
+      </div>
+      <p class="fine" id="whatif-note">—</p>
+      <div class="scroll">
+        <table class="board" id="board">
+          <thead>
+            <tr>
+              <th class="num">#</th>
+              <th>Protocol</th>
+              <th>Verdict, net &amp; per hour</th>
+              <th class="num">Implied</th>
+              <th class="bandcol">Value band</th>
+              <th class="num">Slice</th>
+              <th class="num">TVL</th>
+              <th class="num">7d</th>
+              <th class="num">Age</th>
+            </tr>
+          </thead>
+          <tbody id="board-body"></tbody>
+        </table>
+        <p class="empty" id="empty" hidden>No protocol matches that filter. <button type="button" id="clear">Clear filters</button></p>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-aside" hidden>
+      <div class="board-head">
+        <h2>Set aside — audited, not ranked</h2>
+        <p class="hint">These <span id="aside-n">—</span> protocols record no token, but the house rule keeps them off the launch list: each is a wrapped or staked product, a versioned pool, an exchange product, or in an excluded category. They are counted here so none of the snapshot&rsquo;s token-less protocols goes missing — and none of them is priced as a launch.</p>
+      </div>
+      <p class="fine" id="aside-reasons"></p>
+      <div class="scroll">
+        <table class="board" id="aside-table">
+          <thead>
+            <tr>
+              <th>Protocol</th>
+              <th>Category</th>
+              <th>Chains</th>
+              <th class="num">TVL</th>
+              <th class="num">7d</th>
+              <th class="num">Age</th>
+              <th>Why it is set aside</th>
+            </tr>
+          </thead>
+          <tbody id="aside-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-traded" hidden>
+      <div class="board-head">
+        <h2>Already trading — the market&rsquo;s value, never ranked</h2>
+        <p class="hint">These protocols have a token that trades, so the radar does not score them. All <span id="traded-n">—</span> are listed, largest market cap first; the <span id="comp-n">—</span> with a market cap above zero are also the comparables the launch curve is fitted to.</p>
+      </div>
+      <div class="scroll">
+        <table class="board" id="traded-table">
+          <thead>
+            <tr>
+              <th>Protocol</th>
+              <th>Category</th>
+              <th>Chains</th>
+              <th class="num">TVL</th>
+              <th class="num">Market cap</th>
+              <th class="num">7d</th>
+            </tr>
+          </thead>
+          <tbody id="traded-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card detail" id="detail" hidden>
+    <div class="detail-head">
+      <div>
+        <p class="kicker">Rank <span id="d-rank">—</span> &middot; <span id="d-cat">—</span></p>
+        <h2 id="d-name">—</h2>
+      </div>
+      <button type="button" id="d-close" class="btn">Close</button>
+    </div>
+    <dl class="kv" id="d-stats"></dl>
+    <div class="detail-grid">
+      <div>
+        <h3>The model&rsquo;s working</h3>
+        <table class="mini" id="d-model"><tbody></tbody></table>
+      </div>
+      <div>
+        <h3>Farm economics</h3>
+        <table class="mini" id="d-econ"><tbody></tbody></table>
+      </div>
+    </div>
+    <h3>Farm plan</h3>
+    <ol class="steps" id="d-steps"></ol>
+  </section>
+
+  <section class="card" id="model">
+    <h2>How the price is earned</h2>
+    <p class="muted">The curve is fitted to the snapshot&rsquo;s own traded tokens — <span id="fit-line">—</span> — not typed in by hand. Every factor comes from the protocol&rsquo;s own record: its TVL, its seven-day growth, and how many chains it runs on. Age still matters for the hold window and the launch odds — but the price no longer carries a maturity multiplier: the quadratic curve prices age better without it. No protocol&rsquo;s name ever changes its score. Each row carries the band the backtest earns: the full model&rsquo;s leave-one-out median miss, so a value of $10M reads as roughly $3M&ndash;$36M instead of a false precision.</p>
+    <div class="model-grid">
+      <div>
+        <h3>The fit, tested — full model and curve alone</h3>
+        <table class="mini" id="fit-table"><tbody></tbody></table>
+        <h3>Launch odds — the peers&rsquo; record</h3>
+        <table class="mini" id="odds-table"><tbody></tbody></table>
+        <p class="fine" id="odds-cal">—</p>
+        <h3>What was tried and dropped</h3>
+        <table class="mini" id="drop-table"><tbody></tbody></table>
+        <p class="fine" id="best-hour">—</p>
+      </div>
+      <div>
+        <h3>The traded tokens and the curve</h3>
+        <div id="scatter" class="scatter" role="img" aria-label="Scatter plot of traded tokens against the fitted launch curve"></div>
+        <p class="fine">Dots: the traded tokens, market cap against TVL. Dashed line: the fitted curve. Pale band: the full model&rsquo;s leave-one-out median miss, the same band each board row carries.</p>
+        <h3>Farm economics, stated</h3>
+        <ul class="notes" id="econ-notes"></ul>
+        <h3>Growth, chains, odds — and the maturity that left</h3>
+        <ul class="notes">
+          <li>Growth: 7-day change clamped to &minus;60%&hellip;+120%, half weight — fitted as an effect first, and it missed worse, so it stays an adjustment, validated as part of the full model. Relative momentum (7d vs the market median) was tested both ways and now loses leave-one-out outright, so it stays out.</li>
+          <li>Maturity: dropped in radar-8. The quadratic curve with growth and chains — no maturity multiplier — wins leave-one-out and both blind splits and confirms on walk-forward; putting maturity back (quadratic with all three multipliers) loses blind 2024, and the maturity-only quadratic has the best leave-one-out of any variant but loses both blind splits. Age is not ignored: it still sets the hold window and drives the launch odds.</li>
+          <li>Chains: +2% per extra chain, capped at +10% — fitted as an effect first, and it missed worse. Dropping it wins leave-one-out and blind 2024 but loses blind 2025, so it stays in.</li>
+          <li>Launch odds: a separate logistic model on age + category, 1 minus the fitted peer token rate — the share of protocols this age in this category that still record no token. It never changes the implied value; it weights the expected slice in the detail view. Weighting the ranking by odds was tested on both blind sets and does not rank better (blind 2025 top-10: 50% raw vs 40% weighted), so the board ranks by raw launch value.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="card note">
+    <h2>Read this before farming</h2>
+    <p>&ldquo;Pre-token&rdquo; means the protocol&rsquo;s record carries no token — no market cap, no CoinGecko id, no symbol — not that it has promised one. Implied value is a ranking model fitted to traded tokens, not a price prediction: it says which launch would be biggest if it happened, not that it will happen or what a token would trade at. Launch odds are the peers&rsquo; record — the share of protocols this age in this category that still record no token — not a forecast that a token will launch. The farm net is a scenario — 10% of the implied value shared pro-rata by TVL among depositors, on a $1,000 position — not a promise of any payout. Airdrops are never guaranteed, claims never ask you to pay, and the farm plans above are starting points, not advice. Verify every link on the protocol&rsquo;s own site before you connect a wallet.</p>
+  </footer>
+</main>
+<script src="../data.js"></script>
+<script src="desk.js"></script>
+</body>
+</html>
